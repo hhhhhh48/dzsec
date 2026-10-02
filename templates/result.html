@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ r.url }} — DZSec</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa;min-height:100vh;padding:16px;line-height:1.6}
+.wrap{max-width:560px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding:10px 0}
+.logo{display:flex;align-items:center;gap:10px;color:#fafafa;text-decoration:none;font-weight:700}
+.mark{width:26px;height:26px;border-radius:7px;background:#c5ff3d;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:12px}
+.back{font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;padding:6px 12px;border:1px solid #1a1a1a;border-radius:100px;text-decoration:none}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:100px;background:#0a0a0a;border:1px solid #1a1a1a;font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;margin-bottom:16px}
+.dot{width:6px;height:6px;background:#c5ff3d;border-radius:50%;box-shadow:0 0 8px #c5ff3d}
+.url{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;direction:ltr;text-align:left;word-break:break-all;margin-bottom:24px}
+.score{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:24px;padding:28px 24px;margin-bottom:12px;position:relative;overflow:hidden}
+.score::before{content:'';position:absolute;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;filter:blur(80px);opacity:.2}
+.label{font-family:'JetBrains Mono',monospace;font-size:10px;color:#666;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+.grade-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px}
+.grade{font-family:'JetBrains Mono',monospace;font-size:110px;font-weight:700;line-height:.8;letter-spacing:-8px}
+.pts{text-align:left;direction:ltr}
+.pts .n{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700}
+.pts .p{font-family:'JetBrains Mono',monospace;font-size:12px;color:#666}
+.bar{height:6px;background:#1a1a1a;border-radius:100px;overflow:hidden}
+.fill{height:100%;border-radius:100px}
+.banner{margin-top:18px;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600}
+.bs{background:rgba(197,255,61,.08);border:1px solid rgba(197,255,61,.2);color:#c5ff3d}
+.bw{background:rgba(255,165,2,.08);border:1px solid rgba(255,165,2,.2);color:#ffa502}
+.bd{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);color:#ff4757}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:14px;padding:14px 8px;text-align:center}
+.sv{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:700;margin-bottom:3px}
+.sl{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:2px}
+.sh b{font-weight:500}
+.sc{font-size:10px;color:#404040;padding:3px 8px;border:1px solid #1a1a1a;border-radius:100px}
+.rows{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;align-items:center;gap:12px;padding:13px 15px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:14px}
+.row.ok{border-right:2px solid #c5ff3d}
+.row.no{border-right:2px solid #ff4757}
+.ri{width:30px;height:30px;flex-shrink:0;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.row.ok .ri{background:rgba(197,255,61,.08);color:#c5ff3d}
+.row.no .ri{background:rgba(255,71,87,.08);color:#ff4757}
+.rb{flex:1;min-width:0}
+.rn{font-family:'JetBrains Mono',monospace;font-size:12px;direction:ltr;text-align:left;font-weight:500}
+.rd{font-size:11px;color:#666}
+.rs{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:4px 10px;border-radius:100px;flex-shrink:0}
+.row.ok .rs{background:rgba(197,255,61,.12);color:#c5ff3d}
+.row.no .rs{background:rgba(255,71,87,.12);color:#ff4757}
+.rec{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:16px;padding:18px;margin-bottom:10px}
+.rt{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px;align-items:center}
+.rtt{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;direction:ltr;text-align:left;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rsev{font-size:9px;font-weight:700;padding:3px 9px;border-radius:100px;font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.sv1{background:rgba(255,71,87,.15);color:#ff4757}
+.sv2{background:rgba(255,165,2,.15);color:#ffa502}
+.sv3{background:rgba(0,229,255,.12);color:#00e5ff}
+.sv4{background:rgba(120,120,120,.15);color:#999}
+.riss{font-size:13px;color:#b4b4b4;line-height:1.6;margin-bottom:14px}
+.rlb{font-family:'JetBrains Mono',monospace;font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:6px}
+.rfix{background:#050505;border:1px solid #1a1a1a;border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#c5ff3d;direction:ltr;text-align:left;word-break:break-all;line-height:1.5}
+.dvd{height:1px;background:linear-gradient(90deg,transparent,#1a1a1a,transparent);margin:28px 0}
+.foot{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#404040;padding:20px 0 10px;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="wrap">
+{% set colors = {'A+':'#c5ff3d','A':'#c5ff3d','B':'#ffa502','C':'#ffa502','D':'#ff4757','F':'#ff4757'} %}
+{% set color = colors.get(r.grade,'#737373') %}
+<div class="top">
+<a href="/" class="logo"><div class="mark">DZ</div>DZSec</a>
+<a href="/" class="back">NEW SCAN</a>
+</div>
+<div class="badge"><span class="dot"></span>SCAN COMPLETE</div>
+<div class="url">{{ r.url }}</div>
+<div class="score">
+<style>.score::before{background:{{ color }}}</style>
+<div class="label">Security Score</div>
+<div class="grade-row">
+<div class="grade" style="color:{{ color }}">{{ r.grade }}</div>
+<div class="pts"><div class="n" style="color:{{ color }}">{{ r.score }}/{{ r.max_score }}</div><div class="p">{{ r.percentage }}%</div></div>
+</div>
+<div class="bar"><div class="fill" style="width:{{ r.percentage }}%;background:{{ color }}"></div></div>
+{% if r.grade in ['A+','A'] %}<div class="banner bs">موقعك آمن بشكل جيد</div>
+{% elif r.grade in ['B','C'] %}<div class="banner bw">موقعك بحاجة لتحسينات أمنية</div>
+{% else %}<div class="banner bd">تحذير! موقعك غير محمي بشكل كافٍ</div>{% endif %}
+</div>
+<div class="grid">
+<div class="stat"><div class="sv" style="color:{{ '#c5ff3d' if r.https else '#ff4757' }}">{{ 'YES' if r.https else 'NO' }}</div><div class="sl">HTTPS</div></div>
+<div class="stat"><div class="sv" style="color:{{ '#c5ff3d' if r.ssl else '#ff4757' }}">{{ r.ssl_days if r.ssl else '—' }}</div><div class="sl">SSL DAYS</div></div>
+<div class="stat"><div class="sv" style="color:{{ '#c5ff3d' if r.headers_found|length >= 6 else ('#ffa502' if r.headers_found|length >= 3 else '#ff4757') }}">{{ r.headers_found|length }}/8</div><div class="sl">HEADERS</div></div>
+</div>
+<div class="sh"><b>Security Headers</b><span class="sc">{{ r.headers_found|length }}/8</span></div>
+{% set hd = {'HSTS':'يجبر المتصفح على استخدام HTTPS','CSP':'يحمي من هجمات XSS','X-Frame-Options':'يحمي من Clickjacking','X-Content-Type-Options':'يمنع تخمين الملفات','Referrer-Policy':'يحمي الخصوصية','Permissions-Policy':'يقيّد الكاميرا والمايك','COOP':'يعزل النطاق','CORP':'يحمي الموارد'} %}
+<div class="rows">
+{% for k,v in r.details.items() %}
+<div class="row {{ 'ok' if v else 'no' }}">
+<div class="ri">{{ '✓' if v else '✕' }}</div>
+<div class="rb"><div class="rn">{{ k }}</div><div class="rd">{{ hd.get(k,'') }}</div></div>
+<div class="rs">{{ 'OK' if v else 'MISSING' }}</div>
+</div>
+{% endfor %}
+</div>
+{% if r.recommendations %}
+<div class="sh"><b>Recommendations</b><span class="sc">{{ r.recommendations|length }}</span></div>
+{% for rec in r.recommendations %}
+<div class="rec">
+<div class="rt">
+<div class="rtt">{{ rec.title }}</div>
+<div class="rsev {% if rec.severity == 'حرجة' %}sv1{% elif rec.severity == 'عالية' %}sv2{% elif rec.severity == 'متوسطة' %}sv3{% else %}sv4{% endif %}">{{ rec.severity }}</div>
+</div>
+<div class="riss">{{ rec.issue }}</div>
+<div class="rlb">ADD THIS HEADER</div>
+<div class="rfix">{{ rec.fix }}</div>
+</div>
+{% endfor %}
+{% endif %}
+<div class="dvd"></div>
+<div class="foot">DZSEC © 2026 · {{ r.date }}</div>
+</div>
+</body>
+</html>
