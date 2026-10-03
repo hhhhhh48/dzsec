@@ -71,8 +71,7 @@ HEADER_NAMES = {
 }
 
 
-def check_wordpress_and_files(url, hostname):
-    """فحص WordPress والملفات الحساسة"""
+def check_wordpress_and_files(url):
     findings = {
         'is_wordpress': False,
         'wp_version': None,
@@ -86,11 +85,9 @@ def check_wordpress_and_files(url, hostname):
     try:
         response = requests.get(url, timeout=10, headers=headers, allow_redirects=True)
         content = response.text.lower()
-
         wp_signals = ['wp-content', 'wp-includes', 'wp-json', '/wordpress']
         if any(signal in content for signal in wp_signals):
             findings['is_wordpress'] = True
-
         match = re.search(r'<meta name="generator" content="WordPress ([0-9.]+)"', response.text)
         if match:
             findings['wp_version'] = match.group(1)
@@ -114,7 +111,6 @@ def check_wordpress_and_files(url, hostname):
         try:
             check_url = url.rstrip('/') + path
             r = requests.get(check_url, timeout=5, headers=headers, allow_redirects=False)
-
             if r.status_code == 200 and len(r.content) > 0:
                 findings['sensitive_files'].append({
                     'path': path,
@@ -229,8 +225,7 @@ def check_site(url):
     severity_order = {'حرجة': 0, 'عالية': 1, 'متوسطة': 2, 'منخفضة': 3}
     recommendations.sort(key=lambda x: severity_order.get(x['severity'], 4))
 
-    # فحص WordPress والملفات الحساسة
-    wp_findings = check_wordpress_and_files(url, hostname)
+    wp_findings = check_wordpress_and_files(url)
 
     return {
         'url': hostname,
