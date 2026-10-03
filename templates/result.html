@@ -67,8 +67,6 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa
 .btn-pdf:active{transform:scale(.98)}
 .dvd{height:1px;background:linear-gradient(90deg,transparent,#1a1a1a,transparent);margin:28px 0}
 .foot{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#404040;padding:20px 0 10px;letter-spacing:1px}
-
-/* تنسيق الطباعة PDF */
 @media print {
     body{background:#fff!important;color:#000!important;padding:0!important}
     .wrap{max-width:100%!important}
@@ -137,14 +135,46 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa
 {% endfor %}
 {% endif %}
 
-<!-- زر تحميل PDF -->
-<div class="actions">
-    <button class="btn-pdf" onclick="window.print()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        تحميل التقرير PDF
-    </button>
+{% if r.wordpress %}
+<div class="sh"><b>WordPress & Files</b>
+{% if r.wordpress.is_wordpress %}<span class="sc" style="color:#ffa502;border-color:rgba(255,165,2,.3);">WP DETECTED</span>{% else %}<span class="sc">NOT WP</span>{% endif %}
 </div>
+{% if r.wordpress.is_wordpress %}
+<div class="rec" style="border-right:2px solid #ffa502;">
+<div class="rt">
+<div class="rtt">WordPress CMS</div>
+<div class="rsev sv2">مكتشف</div>
+</div>
+<div class="riss">
+تم اكتشاف أن الموقع يستخدم WordPress{% if r.wordpress.wp_version %} — الإصدار: <strong style="color:#c5ff3d;">{{ r.wordpress.wp_version }}</strong>{% endif %}.
+{% if r.wordpress.xmlrpc_enabled %}<br><strong style="color:#ff4757;">⚠️ xmlrpc.php مُفعّل (خطر DDoS و Brute Force!)</strong>{% endif %}
+</div>
+</div>
+{% endif %}
+{% if r.wordpress.sensitive_files %}
+{% for f in r.wordpress.sensitive_files %}
+<div class="rec" style="border-right:2px solid {% if f.status == 'exposed' %}#ff4757{% else %}#c5ff3d{% endif %};">
+<div class="rt">
+<div class="rtt">{{ f.path }}</div>
+<div class="rsev {% if f.status == 'exposed' %}sv1{% else %}sv4{% endif %}">{% if f.status == 'exposed' %}مكشوف{% else %}محمي{% endif %}</div>
+</div>
+<div class="riss">{{ f.description }}</div>
+</div>
+{% endfor %}
+{% endif %}
+{% if not r.wordpress.is_wordpress and not r.wordpress.sensitive_files %}
+<div class="rec" style="border-right:2px solid #c5ff3d;">
+<div class="riss" style="color:#c5ff3d;">✅ لم يتم اكتشاف WordPress، ولم يتم العثور على ملفات حساسة مكشوفة.</div>
+</div>
+{% endif %}
+{% endif %}
 
+<div class="actions">
+<button class="btn-pdf" onclick="window.print()">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+تحميل التقرير PDF
+</button>
+</div>
 <div class="dvd"></div>
 <div class="foot">DZSEC © 2026 · {{ r.date }}</div>
 </div>
