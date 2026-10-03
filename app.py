@@ -2,12 +2,12 @@ from flask import Flask, render_template, request
 import requests
 import ssl
 import socket
+import re
 from urllib.parse import urlparse
 from datetime import datetime
 
 app = Flask(__name__)
 
-# ============ التوصيات المفصلة ============
 RECOMMENDATIONS = {
     'HSTS': {
         'title': 'Strict-Transport-Security (HSTS)',
@@ -70,6 +70,80 @@ HEADER_NAMES = {
     'Cross-Origin-Resource-Policy': 'CORP',
 }
 
+
+def check_wordpress_and_files(url, hostname):
+    """فحص WordPress والملفات الحساسة"""
+    findings = {
+        'is_wordpress': False,
+        'wp_version': None,
+        'sensitive_files': [],
+        'xmlrpc_enabled': False,
+        'risk_count': 0,
+    }
+
+    headers = {'User-Agent': 'Mozilla/5.0 (compatible; DZSec-Scanner)'}
+
+    try:
+        response = requests.get(url, timeout=10, headers=headers, allow_redirects=True)
+        content = response.text.lower()
+
+        wp_signals = ['wp-content', 'wp-includes', 'wp-json', '/wordpress']
+        if any(signal in content for signal in wp_signals):
+            findings['is_wordpress'] = True
+
+        match = re.search(r'<meta name="generator" content="WordPress ([0-9.]+)"', response.text)
+        if match:
+            findings['wp_version'] = match.group(1)
+    except:
+        pass
+
+    sensitive_paths = [
+        ('/wp-config.php.bak', 'نسخة احتياطية من إعدادات WordPress'),
+        ('/wp-config.php~', 'نسخة احتياطية من إعدادات WordPress'),
+        ('/wp-config.php.old', 'نسخة قديمة من إعدادات WordPress'),
+        ('/.env', 'ملف البيئة (يحتوي كلمات مرور)'),
+        ('/.env.backup', 'نسخة احتياطية من ملف البيئة'),
+        ('/backup.zip', 'نسخة احتياطية كاملة'),
+        ('/backup.sql', 'نسخة احتياطية من قاعدة البيانات'),
+        ('/database.sql', 'نسخة من قاعدة البيانات'),
+        ('/.git/config', 'ملف إعدادات Git'),
+        ('/phpinfo.php', 'ملف معلومات PHP'),
+    ]
+
+    for path, description in sensitive_paths:
+        try:
+            check_url = url.rstrip('/') + path
+            r = requests.get(check_url, timeout=5, headers=headers, allow_redirects=False)
+
+            if r.status_code == 200 and len(r.content) > 0:
+                findings['sensitive_files'].append({
+                    'path': path,
+                    'description': description,
+                    'status': 'exposed',
+                })
+                findings['risk_count'] += 1
+            elif r.status_code == 403:
+                findings['sensitive_files'].append({
+                    'path': path,
+                    'description': description,
+                    'status': 'protected',
+                })
+        except:
+            pass
+
+    if findings['is_wordpress']:
+        try:
+            xmlrpc_url = url.rstrip('/') + '/xmlrpc.php'
+            r = requests.get(xmlrpc_url, timeout=5, headers=headers)
+            if r.status_code == 200:
+                findings['xmlrpc_enabled'] = True
+                findings['risk_count'] += 1
+        except:
+            pass
+
+    return findings
+
+
 def check_site(url):
     if not url.startswith('http'):
         url = 'https://' + url
@@ -84,6 +158,7 @@ def check_site(url):
     headers_found = {}
     missing_headers = []
     details = {}
+    final_url = url
 
     try:
         response = requests.get(url, timeout=15, allow_redirects=True)
@@ -128,7 +203,7 @@ def check_site(url):
                 details[key] = False
                 missing_headers.append(key)
 
-    except Exception as e:
+    except Exception:
         return None
 
     percentage = (score / max_score) * 100
@@ -146,15 +221,16 @@ def check_site(url):
     else:
         grade, grade_text = "F", "خطر"
 
-    # بناء قائمة التوصيات المفصلة
     recommendations = []
     for key in missing_headers:
         if key in RECOMMENDATIONS:
             recommendations.append(RECOMMENDATIONS[key])
 
-    # ترتيب حسب الخطورة
     severity_order = {'حرجة': 0, 'عالية': 1, 'متوسطة': 2, 'منخفضة': 3}
     recommendations.sort(key=lambda x: severity_order.get(x['severity'], 4))
+
+    # فحص WordPress والملفات الحساسة
+    wp_findings = check_wordpress_and_files(url, hostname)
 
     return {
         'url': hostname,
@@ -171,12 +247,15 @@ def check_site(url):
         'details': details,
         'recommendations': recommendations,
         'missing_count': len(missing_headers),
+        'wordpress': wp_findings,
         'date': datetime.now().strftime('%Y-%m-%d %H:%M')
     }
+
 
 @app.route('/')
 def home():
     return render_template('index.html')
+
 
 @app.route('/scan', methods=['POST'])
 def scan():
@@ -187,6 +266,7 @@ def scan():
     if not result:
         return render_template('index.html', error="فشل الاتصال بالموقع. تأكد من الرابط.")
     return render_template('result.html', r=result)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
