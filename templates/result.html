@@ -61,8 +61,27 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa
 .riss{font-size:13px;color:#b4b4b4;line-height:1.6;margin-bottom:14px}
 .rlb{font-family:'JetBrains Mono',monospace;font-size:9px;color:#666;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;margin-bottom:6px}
 .rfix{background:#050505;border:1px solid #1a1a1a;border-radius:10px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#c5ff3d;direction:ltr;text-align:left;word-break:break-all;line-height:1.5}
+.actions{display:flex;gap:8px;margin-top:20px}
+.btn-pdf{flex:1;padding:16px;background:#c5ff3d;color:#000;border:none;border-radius:14px;font-family:'IBM Plex Sans Arabic',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.btn-pdf:hover{box-shadow:0 0 40px rgba(197,255,61,.4)}
+.btn-pdf:active{transform:scale(.98)}
 .dvd{height:1px;background:linear-gradient(90deg,transparent,#1a1a1a,transparent);margin:28px 0}
 .foot{text-align:center;font-family:'JetBrains Mono',monospace;font-size:10px;color:#404040;padding:20px 0 10px;letter-spacing:1px}
+
+/* تنسيق الطباعة PDF */
+@media print {
+    body{background:#fff!important;color:#000!important;padding:0!important}
+    .wrap{max-width:100%!important}
+    .top,.back,.actions{display:none!important}
+    .score,.stat,.row,.rec{background:#f8f8f8!important;border-color:#ddd!important;color:#000!important;page-break-inside:avoid}
+    .grade,.pts .n{color:#000!important;-webkit-text-fill-color:#000!important}
+    .rfix{background:#f0f0f0!important;color:#000!important;border-color:#ccc!important}
+    .rn,.rtt,.url{color:#000!important}
+    .banner{background:#f8f8f8!important;border-color:#ddd!important;color:#000!important}
+    .label,.sh,.sl,.rd,.rlb,.riss,.sc,.foot,.badge{color:#333!important}
+    .riss{color:#444!important}
+    @page{margin:1.5cm;size:A4}
+}
 </style>
 </head>
 <body>
@@ -117,6 +136,15 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa
 </div>
 {% endfor %}
 {% endif %}
+
+<!-- زر تحميل PDF -->
+<div class="actions">
+    <button class="btn-pdf" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        تحميل التقرير PDF
+    </button>
+</div>
+
 <div class="dvd"></div>
 <div class="foot">DZSEC © 2026 · {{ r.date }}</div>
 </div>
