@@ -175,6 +175,20 @@ body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa
 تحميل التقرير PDF
 </button>
 </div>
+{% if r.grade in ['D','F'] and r.url in ['google.com','www.google.com','google.com.dz'] or (r.grade in ['D','F'] and r.headers_found|length >= 1 and r.score >= 20) %}
+<div class="rec" style="border-right:2px solid #00e5ff;margin-top:20px;">
+<div class="rt">
+<div class="rtt">ملاحظة تقنية</div>
+<div class="rsev sv3">معلومات</div>
+</div>
+<div class="riss">
+المواقع الكبرى مثل <strong style="color:#c5ff3d;">Google</strong> قد تحصل على تقييم منخفض على الصفحة الرئيسية، لكنها تحمي بشدة صفحاتها الحساسة (مثل تسجيل الدخول، البريد، الدفع).
+<br><br>
+<strong>لذلك:</strong> إذا كنت تاجرًا أو صاحب متجر، <strong>موقعك بحاجة إلى الحماية</strong> لأن بيانات عملائك تمر عبره مباشرة.
+</div>
+</div>
+{% endif %}
+
 <div class="dvd"></div>
 <div class="foot">DZSEC © 2026 · {{ r.date }}</div>
 </div>
