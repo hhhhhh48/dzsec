@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — DZSec</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans Arabic',sans-serif;background:#000;color:#fafafa;min-height:100vh;padding:16px;direction:rtl;line-height:1.6}
+.wrap{max-width:640px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px 0;margin-bottom:24px}
+h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.sub{color:#666;font-size:13px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:18px;padding:22px 18px;text-align:center}
+.card.green{border-right:2px solid #c5ff3d}
+.card.blue{border-right:2px solid #00e5ff}
+.num{font-family:monospace;font-size:42px;font-weight:700;line-height:1;margin-bottom:6px}
+.card.green .num{color:#c5ff3d}
+.card.blue .num{color:#00e5ff}
+.lbl{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1.5px}
+.section{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:18px;padding:20px;margin-bottom:16px}
+.sec-title{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:2px;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #1a1a1a;font-size:13px}
+.row:last-child{border-bottom:none}
+.lbl2{color:#666}
+.val{font-family:monospace}
+.url-item{display:flex;justify-content:space-between;padding:12px 14px;background:#050505;border:1px solid #1a1a1a;border-radius:10px;font-size:12px;margin-bottom:6px}
+.url-name{font-family:monospace;direction:ltr;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.url-time{font-family:monospace;font-size:10px;color:#666}
+.empty{text-align:center;padding:20px;color:#666;font-size:13px}
+.logout{font-size:11px;color:#ff4757;padding:7px 12px;border:1px solid rgba(255,71,87,.3);border-radius:100px;text-decoration:none}
+.foot{text-align:center;font-size:10px;color:#404040;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+<strong>🛡️ DZSec Admin</strong>
+<a href="/admin/logout" class="logout">خروج</a>
+</div>
+<h1>لوحة التحكم</h1>
+<p class="sub">إحصائيات الموقع</p>
+<div class="grid">
+<div class="card green"><div class="num">{{ stats.visitors }}</div><div class="lbl">Visitors</div></div>
+<div class="card blue"><div class="num">{{ stats.scans }}</div><div class="lbl">Scans</div></div>
+</div>
+<div class="section">
+<div class="sec-title">معلومات عامة</div>
+<div class="row"><span class="lbl2">أول زيارة</span><span class="val">{{ stats.first_visit or '—' }}</span></div>
+<div class="row"><span class="lbl2">آخر زيارة</span><span class="val">{{ stats.last_visit or '—' }}</span></div>
+</div>
+<div class="section">
+<div class="sec-title">آخر المواقع المفحوصة</div>
+{% if stats.urls %}
+{% for u in stats.urls|reverse %}
+<div class="url-item"><span class="url-name">{{ u.url }}</span><span class="url-time">{{ u.time }}</span></div>
+{% endfor %}
+{% else %}
+<div class="empty">لا توجد فحوصات بعد</div>
+{% endif %}
+</div>
+<div class="foot">DZSEC © 2026</div>
+</div>
+</body>
+</html>
