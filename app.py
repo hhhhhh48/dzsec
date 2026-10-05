@@ -1,12 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session, redirect
 import requests
 import ssl
 import socket
 import re
+import json
+import os
 from urllib.parse import urlparse
 from datetime import datetime
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dzsec-secret-key-2026-change-me')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dzsec2026admin')
+STATS_FILE = 'admin_stats.json'
 
 RECOMMENDATIONS = {
     'HSTS': {
@@ -69,6 +75,52 @@ HEADER_NAMES = {
     'Cross-Origin-Opener-Policy': 'COOP',
     'Cross-Origin-Resource-Policy': 'CORP',
 }
+
+
+def load_stats():
+    if os.path.exists(STATS_FILE):
+        try:
+            with open(STATS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except:
+            pass
+    return {'visitors': 0, 'scans': 0, 'urls': [], 'first_visit': None, 'last_visit': None}
+
+
+def save_stats(stats):
+    try:
+        with open(STATS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(stats, f, ensure_ascii=False, indent=2)
+    except:
+        pass
+
+
+def track_visit():
+    stats = load_stats()
+    stats['visitors'] = stats.get('visitors', 0) + 1
+    now = datetime.now().strftime('%Y-%m-%d %H:%M')
+    if not stats.get('first_visit'):
+        stats['first_visit'] = now
+    stats['last_visit'] = now
+    save_stats(stats)
+
+
+def track_scan(url):
+    stats = load_stats()
+    stats['scans'] = stats.get('scans', 0) + 1
+    urls = stats.get('urls', [])
+    urls.append({'url': url, 'time': datetime.now().strftime('%Y-%m-%d %H:%M')})
+    stats['urls'] = urls[-100:]
+    save_stats(stats)
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not session.get('admin_logged_in'):
+            return redirect('/admin/login')
+        return f(*args, **kwargs)
+    return decorated
 
 
 def check_wordpress_and_files(url):
@@ -249,6 +301,7 @@ def check_site(url):
 
 @app.route('/')
 def home():
+    track_visit()
     return render_template('index.html')
 
 
@@ -257,10 +310,35 @@ def scan():
     url = request.form.get('url', '').strip()
     if not url:
         return render_template('index.html', error="الرجاء إدخال رابط الموقع")
+    track_scan(url)
     result = check_site(url)
     if not result:
         return render_template('index.html', error="فشل الاتصال بالموقع. تأكد من الرابط.")
     return render_template('result.html', r=result)
+
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    error = None
+    if request.method == 'POST':
+        if request.form.get('password', '') == ADMIN_PASSWORD:
+            session['admin_logged_in'] = True
+            return redirect('/admin')
+        error = 'كلمة السر غير صحيحة'
+    return render_template('admin_login.html', error=error)
+
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return redirect('/admin/login')
+
+
+@app.route('/admin')
+@login_required
+def admin_dashboard():
+    stats = load_stats()
+    return render_template('admin_dashboard.html', stats=stats)
 
 
 if __name__ == '__main__':
